@@ -1,0 +1,5 @@
+rootProject.name = 'pj2-ticketing'
+
+include('module')
+include('module:queue')
+include('module:web')

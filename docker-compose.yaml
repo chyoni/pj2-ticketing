@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  redis:
+    container_name: redis
+    image: redis:7.4
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ticketing
+
+networks:
+  ticketing:
+    driver: bridge
+
+volumes:
+  redis_data:
