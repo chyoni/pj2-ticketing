@@ -3,6 +3,7 @@ package cwchoiit.ticketing.queue.controller;
 import cwchoiit.ticketing.queue.service.UserQueueService;
 import cwchoiit.ticketing.queue.service.response.AllowUserResponse;
 import cwchoiit.ticketing.queue.service.response.AllowedUserResponse;
+import cwchoiit.ticketing.queue.service.response.RankResponse;
 import cwchoiit.ticketing.queue.service.response.RegisterUserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -32,5 +33,11 @@ public class UserQueueController {
     public Mono<AllowedUserResponse> isAllowedUser(@RequestParam(value = "queueName", defaultValue = "default") final String queueName,
                                                    @RequestParam("userId") final Long userId) {
         return userQueueService.isAllowed(queueName, userId).map(AllowedUserResponse::new);
+    }
+
+    @GetMapping("/rank")
+    public Mono<RankResponse> getRank(@RequestParam(value = "queueName", defaultValue = "default") final String queueName,
+                                      @RequestParam("userId") final Long userId) {
+        return userQueueService.getRank(queueName, userId).map(RankResponse::new);
     }
 }

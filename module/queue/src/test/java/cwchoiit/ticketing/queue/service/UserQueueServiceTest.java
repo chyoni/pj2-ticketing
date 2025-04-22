@@ -138,4 +138,30 @@ class UserQueueServiceTest {
                 .expectNext(true)
                 .verifyComplete();
     }
+
+    @Test
+    @DisplayName("대기 순번 확인 - 정상 케이스")
+    void getRank() {
+        StepVerifier.create(
+                        userQueueService.registerWaitQueue("default", 1000L)
+                                .then(userQueueService.getRank("default", 1000L))
+                )
+                .expectNext(1L)
+                .verifyComplete();
+
+        StepVerifier.create(
+                        userQueueService.registerWaitQueue("default", 1001L)
+                                .then(userQueueService.getRank("default", 1001L))
+                )
+                .expectNext(2L)
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("대기 순번 확인 - 없는 유저를 찾으면 0 반환")
+    void emptyRank() {
+        StepVerifier.create(userQueueService.getRank("default", 5L))
+                .expectNext(0L)
+                .verifyComplete();
+    }
 }

@@ -73,6 +73,22 @@ public class UserQueueService {
                 .map(rank -> rank >= 0);
     }
 
+    /**
+     * 대기 큐에 특정 유저의 순번을 받는다.
+     * 만약, 유저가 없는 경우, 0을 반환하게 된다.
+     * 순번은 1번부터 시작한다.
+     *
+     * @param queueName 대기 큐 이름 (없으면 default)
+     * @param userId 유저 ID
+     * @return a {@code Mono<Long>} 유저의 대기 순번
+     */
+    public Mono<Long> getRank(final String queueName, final Long userId) {
+        return reactiveRedisTemplate.opsForZSet()
+                .rank(generateKey(USER_QUEUE_WAIT_KEY, queueName), userId.toString())
+                .defaultIfEmpty(-1L)
+                .map(rank -> rank + 1);
+    }
+
     private String generateKey(final String prefix, final String queueName) {
         return String.format(prefix, queueName);
     }
