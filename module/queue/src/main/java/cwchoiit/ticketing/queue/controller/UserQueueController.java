@@ -6,8 +6,12 @@ import cwchoiit.ticketing.queue.service.response.AllowedUserResponse;
 import cwchoiit.ticketing.queue.service.response.RankResponse;
 import cwchoiit.ticketing.queue.service.response.RegisterUserResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+
+import java.time.Duration;
 
 @RestController
 @RequiredArgsConstructor
@@ -39,5 +43,20 @@ public class UserQueueController {
     public Mono<RankResponse> getRank(@RequestParam(value = "queueName", defaultValue = "default") final String queueName,
                                       @RequestParam("userId") final Long userId) {
         return userQueueService.getRank(queueName, userId).map(RankResponse::new);
+    }
+
+    @GetMapping("/touch")
+    public Mono<?> touch(@RequestParam(value = "queueName", defaultValue = "default") final String queueName,
+                  @RequestParam("userId") final Long userId,
+                  ServerWebExchange exchange) {
+        return Mono.defer(() -> userQueueService.generateToken(queueName, userId))
+                .map(token -> {
+                    exchange.getResponse().addCookie(ResponseCookie
+                                    .from("user-queue-%s-token".formatted(queueName), token)
+                                    .maxAge(Duration.ofSeconds(300))
+                                    .path("/")
+                                    .build());
+                    return token;
+                });
     }
 }

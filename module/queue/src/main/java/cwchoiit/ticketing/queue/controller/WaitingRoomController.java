@@ -2,10 +2,12 @@ package cwchoiit.ticketing.queue.controller;
 
 import cwchoiit.ticketing.queue.service.UserQueueService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpCookie;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.reactive.result.view.Rendering;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.function.Predicate;
@@ -19,8 +21,13 @@ public class WaitingRoomController {
     @GetMapping("/waiting-room")
     public Mono<Rendering> waitingRoom(@RequestParam(value = "queueName", defaultValue = "default") final String queueName,
                                        @RequestParam("userId") final Long userId,
-                                       @RequestParam("redirectUrl") String redirectUrl) {
-        return userQueueService.isAllowed(queueName, userId)
+                                       @RequestParam("redirectUrl") String redirectUrl,
+                                       ServerWebExchange exchange) {
+        String key = "user-queue-%s-token".formatted(queueName);
+        HttpCookie cookieValue = exchange.getRequest().getCookies().getFirst(key);
+        String token = cookieValue == null ? "" : cookieValue.getValue();
+
+        return userQueueService.isAllowedByToken(queueName, userId, token)
                 .filter(Predicate.isEqual(true))
                 .flatMap(allowed -> Mono.just(Rendering.redirectTo(redirectUrl).build()))
                 .switchIfEmpty(userQueueService.registerWaitQueue(queueName, userId)
