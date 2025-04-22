@@ -37,6 +37,7 @@ public class UserQueueService {
     public void scheduledAllowUser() {
         if (scheduling) {
             log.debug("[scheduledAllowUser] Scheduler Enabled");
+            long allowCount = 100L;
             reactiveRedisTemplate.scan(
                             ScanOptions.scanOptions()
                                     .match(USER_QUEUE_WAIT_KEY_FOR_SCAN)
@@ -44,11 +45,11 @@ public class UserQueueService {
                                     .build()
                     ).map(key -> key.split(":")[2])
                     .flatMap(queue ->
-                            allowUser(queue, 3L)
+                            allowUser(queue, allowCount)
                                     .map(allowed -> Tuples.of(queue, allowed))
                     )
                     .doOnNext(tuple ->
-                            log.info("[scheduledAllowUser] Tried {} and allowed {} members of {} queue", 3L, tuple.getT2(), tuple.getT1())
+                            log.info("[scheduledAllowUser] Tried {} and allowed {} members of {} queue", allowCount, tuple.getT2(), tuple.getT1())
                     )
                     .subscribe();
         }
