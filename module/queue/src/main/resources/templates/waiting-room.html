@@ -45,7 +45,11 @@
                 document.querySelector('#number').innerHTML = data.rank;
                 document.querySelector('#updated').innerHTML = new Date();
                 if(data.rank === 0) { // 내 차례가 왔을때
-                    window.location.href = window.location.origin + window.location.pathname + window.location.search;
+                    fetch('/api/v1/queue/touch?' + queryParam)
+                        .then(response => {
+                            window.location.href = window.location.origin + window.location.pathname + window.location.search;
+                        })
+                        .catch(error => console.error(error));
                 }
             })
             .catch(error => console.error(error));
