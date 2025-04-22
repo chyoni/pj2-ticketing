@@ -1,4 +1,4 @@
-# PJ1. 티켓팅 접속자 대기열 시스템
+# PJ2. 티켓팅 접속자 대기열 시스템
 
 Reactive Redis, Spring Webflux 집중 탐구 프로젝트 By.최치원
 
